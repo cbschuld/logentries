@@ -64,6 +64,28 @@ $log->notice($jsonInfo);
 
 ```
 
+You can also create a non-static instantiation for dependency injection or multiple log token usage
+
+``` php
+<?php
+
+use cbschuld\LogEntries;
+
+require "vendor/autoload.php";
+$token = "2bfbea1e-10c3-4419-bdad-7e6435882e1f"; // your LogEntries token (sample from docs)
+$jsonInfo = ["json"=>true,"example"=>"yes","works"=>true];
+
+$log = new LogEntries($token,true,true); // create persistent SSL-based connection
+$log->info(["status"=>"ok","example"=>"with json messages"]);
+$log->notice($jsonInfo);
+
+$token2 = "2bfbea1e-10c3-4419-bdad-7e6435882e1f"; // your LogEntries token (sample from docs)
+$log2 = new LogEntries($token2,true,true); // create persistent SSL-based connection
+$log2->info(["status"=>"ok","example"=>"with json messages","from"=>"log2"]);
+$log2->notice($jsonInfo);
+
+```
+
 
 ## PSR-3 Compliant
 
