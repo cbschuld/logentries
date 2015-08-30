@@ -38,12 +38,12 @@ class LogEntriesTest extends \PHPUnit_Framework_TestCase
 
     public function testLogJSON()
     {
-        $json = [
+        $json = array(
             "datetime" => new \DateTime("now"),
             "hostname" => gethostname(),
             "status" => "ok",
             "test" => "testLogJSON"
-        ];
+        );
         $log = LogEntries::getLogger(self::TOKEN, false, true, false, "", 10000, "");
         $log->log(LogLevel::DEBUG, json_encode($json));
         $log->tearDown();
@@ -51,12 +51,12 @@ class LogEntriesTest extends \PHPUnit_Framework_TestCase
 
     public function testLogEmergencySimpleStartup()
     {
-        $json = [
+        $json = array(
             "datetime" => new \DateTime("now"),
             "hostname" => gethostname(),
             "status" => "ok",
             "test" => "testLogEmergencySimpleStartup"
-        ];
+        );
         $log = LogEntries::getLogger(self::TOKEN);
         $log->log(LogLevel::EMERGENCY, json_encode($json));
         $log->tearDown();
@@ -64,12 +64,12 @@ class LogEntriesTest extends \PHPUnit_Framework_TestCase
 
     public function testLogSimpleEmergencySimpleStartup()
     {
-        $json = [
+        $json = array(
             "datetime" => new \DateTime("now"),
             "hostname" => gethostname(),
             "status" => "ok",
             "test" => "testLogSimpleEmergencySimpleStartup"
-        ];
+        );
         $log = LogEntries::getLogger(self::TOKEN);
         $log->emergency(json_encode($json));
         $log->tearDown();
@@ -77,13 +77,13 @@ class LogEntriesTest extends \PHPUnit_Framework_TestCase
 
     public function testSSL()
     {
-        $json = [
+        $json = array(
             "datetime" => new \DateTime("now"),
             "hostname" => gethostname(),
             "status" => "ok",
             "ssl" => true,
             "test" => "testSSL"
-        ];
+        );
         $log = LogEntries::getLogger(self::TOKEN,true,true);
         $log->info(json_encode($json));
         $log->tearDown();
