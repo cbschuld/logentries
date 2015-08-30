@@ -1,4 +1,3 @@
 .idea
-/tests/logs/*.txt
-/tests/logs/*.log
 /vendor/
+composer.lock
