@@ -31,6 +31,8 @@ In your `composer.json`:
 ``` php
 <?php
 
+use cbschuld\LogEntries;
+
 require "vendor/autoload.php";
 $token = "your_logentries_token";
 
