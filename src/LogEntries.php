@@ -63,7 +63,7 @@ class LogEntries extends AbstractLogger
     }
 
     /**
-     * Destroy singleton instance, used in PHPUnit tests
+     * Destroy singleton instance, used in PHPUnit tests while in static mode
      */
     public static function tearDown()
     {
@@ -80,7 +80,7 @@ class LogEntries extends AbstractLogger
      * @param int $dataHubPort the port number for the LogEntries DataHub if in use
      * @param string $hostname the hostname to add to the string or json log entry (optional)
      */
-    private function __construct($token, $persistent, $ssl, $dataHubEnabled, $dataHubIPAddress, $dataHubPort, $hostname)
+    public function __construct($token, $persistent = true, $ssl = false, $dataHubEnabled = false, $dataHubIPAddress = "", $dataHubPort = 0, $hostname = "")
     {
 
         if (true === $dataHubEnabled) {

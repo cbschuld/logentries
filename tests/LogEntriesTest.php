@@ -103,4 +103,18 @@ class LogEntriesTest extends \PHPUnit_Framework_TestCase
         $log->tearDown();
     }
 
+    public function testInstanceMode()
+    {
+        $json = array(
+            "datetime" => new \DateTime("now"),
+            "hostname" => gethostname(),
+            "status" => "ok",
+            "ssl" => true,
+            "test" => "testInstanceMode"
+        );
+        $log = new LogEntries(self::TOKEN,true,true);
+        $log->info($json);
+        $log->tearDown();
+    }
+
 }
