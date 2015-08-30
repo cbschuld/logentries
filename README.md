@@ -1,4 +1,7 @@
 # LogEntries
+------------
+[![Build Status](https://travis-ci.org/cbschuld/LogEntries.svg?branch=master)](https://travis-ci.org/cbschuld/LogEntries)
+
 A LogEntries specific logging class by [Chris Schuld](http://chrisschuld.com/) for logging information to [LogEntries](https://logentries.com)
 
 ## About
@@ -34,7 +37,7 @@ In your `composer.json`:
 use cbschuld\LogEntries;
 
 require "vendor/autoload.php";
-$token = "your_logentries_token";
+$token = "2bfbea1e-10c3-4419-bdad-7e6435882e1f"; // your LogEntries token (sample from docs)
 
 $log = LogEntries::getLogger($token,true,true); // create persistent SSL-based connection
 $log->info("some information");

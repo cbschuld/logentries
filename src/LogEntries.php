@@ -315,41 +315,51 @@ class LogEntries extends AbstractLogger
      * Logs with an arbitrary level.
      *
      * @param string $level
-     * @param string $message a textual message or encoded JSON
+     * @param string|array $message a textual message, encoded JSON or array to encode into JSON
      * @param array $context context regarding the message, if this is included it will
      *                       added to the message as json or included in the json payload
+     * @throws \InvalidArgumentException
      * @return null
      */
     public function log($level, $message, array $context = array())
     {
         $this->connectIfNotConnected();
 
-        if ($this->isJSON($message)) {
-            $json = json_decode($message, true);
-            if ("" != $this->_hostname) {
-                $json["hostname"] = $this->_hostname;
-            }
-            $json["level"] = $level;
-            if (count($context) > 0) {
-                $json["context"] = $context;
-            }
-            $message = json_encode($json);
-        } else {
-            $message = strtoupper($level) . " - " . $message;
-            if ("" != $this->_hostname) {
-                $message = "hostname={$this->_hostname} - " . $message;
+        if (is_array($message)) {
+            $message = json_encode($message);
+        }
+
+        if (!is_string($message)) {
+            throw new \InvalidArgumentException('the message argument needs to be a string or an array');
+        }
+        else {
+            if ($this->isJSON($message)) {
+                $json = json_decode($message, true);
+                if ("" != $this->_hostname) {
+                    $json["hostname"] = $this->_hostname;
+                }
+                $json["level"] = $level;
                 if (count($context) > 0) {
-                    $message .= " - " . json_encode($context);
+                    $json["context"] = $context;
+                }
+                $message = json_encode($json);
+            } else {
+                $message = strtoupper($level) . " - " . $message;
+                if ("" != $this->_hostname) {
+                    $message = "hostname={$this->_hostname} - " . $message;
+                    if (count($context) > 0) {
+                        $message .= " - " . json_encode($context);
+                    }
                 }
             }
+            $this->writeToSocket($this->substituteNewline($message) . PHP_EOL);
         }
-        $this->writeToSocket($this->substituteNewline($message) . PHP_EOL);
     }
 
     /**
      * System is unusable.
      *
-     * @param string $message
+     * @param string|array $message
      * @param array $context
      * @return null
      */
@@ -364,7 +374,7 @@ class LogEntries extends AbstractLogger
      * Example: Entire website down, database unavailable, etc. This should
      * trigger the SMS alerts and wake you up.
      *
-     * @param string $message
+     * @param string|array $message
      * @param array $context
      * @return null
      */
@@ -378,7 +388,7 @@ class LogEntries extends AbstractLogger
      *
      * Example: Application component unavailable, unexpected exception.
      *
-     * @param string $message
+     * @param string|array $message
      * @param array $context
      * @return null
      */
@@ -391,7 +401,7 @@ class LogEntries extends AbstractLogger
      * Runtime errors that do not require immediate action but should typically
      * be logged and monitored.
      *
-     * @param string $message
+     * @param string|array $message
      * @param array $context
      * @return null
      */
@@ -406,7 +416,7 @@ class LogEntries extends AbstractLogger
      * Example: Use of deprecated APIs, poor use of an API, undesirable things
      * that are not necessarily wrong.
      *
-     * @param string $message
+     * @param string|array $message
      * @param array $context
      * @return null
      */
@@ -418,7 +428,7 @@ class LogEntries extends AbstractLogger
     /**
      * Normal but significant events.
      *
-     * @param string $message
+     * @param string|array $message
      * @param array $context
      * @return null
      */
@@ -433,7 +443,7 @@ class LogEntries extends AbstractLogger
      *
      * Example: User logs in, SQL logs.
      *
-     * @param string $message
+     * @param string|array $message
      * @param array $context
      * @return null
      */
@@ -445,7 +455,7 @@ class LogEntries extends AbstractLogger
     /**
      * Detailed debug information.
      *
-     * @param string $message
+     * @param string|array $message
      * @param array $context
      * @return null
      */

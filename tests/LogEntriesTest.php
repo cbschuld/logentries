@@ -89,4 +89,18 @@ class LogEntriesTest extends \PHPUnit_Framework_TestCase
         $log->tearDown();
     }
 
+    public function testSSLwithJSON()
+    {
+        $json = array(
+            "datetime" => new \DateTime("now"),
+            "hostname" => gethostname(),
+            "status" => "ok",
+            "ssl" => true,
+            "test" => "testSSLwithJSON"
+        );
+        $log = LogEntries::getLogger(self::TOKEN,true,true);
+        $log->info($json);
+        $log->tearDown();
+    }
+
 }
