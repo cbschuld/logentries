@@ -7,7 +7,7 @@ use Psr\Log\LogLevel;
 
 class LogEntriesTest extends \PHPUnit_Framework_TestCase
 {
-    const TOKEN = '';
+    const TOKEN = '2bfbea1e-10c3-4419-bdad-7e6435882e1f'; // test token from LogEntries docs
 
 
     public function testSingleton()
