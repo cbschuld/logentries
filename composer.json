@@ -1,0 +1,30 @@
+{
+  "name": "cbschuld/LogEntries",
+  "version": "dev-master",
+  "description": "A PHP PSR-3 compliant logging class for LogEntries",
+  "keywords": [
+    "logging"
+  ],
+  "require": {
+    "php": ">=5.3",
+    "psr/log": "1.0.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "4.0.*"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Chris Schuld",
+      "email": "chris@chrisschuld.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "cbschuld\\": "src/"
+    },
+    "classmap": [
+      "src/"
+    ]
+  }
+}
