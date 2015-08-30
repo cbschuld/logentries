@@ -13,7 +13,7 @@ compliant logging class used to log information to the [LogEntries](https://loge
 From the Command Line:
 
 ```
-composer require cbschuld/LogEntries:dev-master
+composer require cbschuld/LogEntries:1.*
 ```
 
 In your `composer.json`:
@@ -21,7 +21,7 @@ In your `composer.json`:
 ``` json
 {
     "require": {
-        "cbschuld/LogEntries": "dev-master"
+        "cbschuld/LogEntries": "1.*"
     }
 }
 ```
