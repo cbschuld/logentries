@@ -45,6 +45,26 @@ $log->notice(json_encode(["status"=>"ok","message"=>"send some json"]));
 
 ```
 
+## Advanced Usage
+
+You can send all of the logging functions either a string (PSR-3), encoded JSON (PSR-3)
+or an array which will be encoded into JSON (not PSR-3 but available)
+
+``` php
+<?php
+
+use cbschuld\LogEntries;
+
+require "vendor/autoload.php";
+$token = "2bfbea1e-10c3-4419-bdad-7e6435882e1f"; // your LogEntries token (sample from docs)
+$jsonInfo = ["json"=>true,"example"=>"yes","works"=>true];
+
+$log = LogEntries::getLogger($token,true,true); // create persistent SSL-based connection
+$log->info(["status"=>"ok","example"=>"with json messages"]);
+$log->notice($jsonInfo);
+
+```
+
 
 ## PSR-3 Compliant
 
