@@ -9,7 +9,6 @@ class LogEntriesTest extends \PHPUnit_Framework_TestCase
 {
     const TOKEN = '2bfbea1e-10c3-4419-bdad-7e6435882e1f'; // test token from LogEntries docs
 
-
     public function testSingleton()
     {
         $log = LogEntries::getLogger(self::TOKEN);
@@ -113,6 +112,33 @@ class LogEntriesTest extends \PHPUnit_Framework_TestCase
             "test" => "testInstanceMode"
         );
         $log = new LogEntries(self::TOKEN,true,true);
+        $log->info($json);
+        $log->tearDown();
+    }
+
+    public function testWriterAbstractionWithText()
+    {
+        $writer = new WriterTest();
+        $log = new LogEntries(self::TOKEN,true,true);
+        $log->addWriter($writer);
+        $log->info("some information in text (testWriterAbstractionWithText) - the writer should append");
+        $log->tearDown();
+    }
+
+    public function testWriterAbstractionWithJson()
+    {
+        $writer = new WriterTest();
+
+        $json = array(
+            "datetime" => new \DateTime("now"),
+            "hostname" => gethostname(),
+            "status" => "ok",
+            "ssl" => true,
+            "test" => "testWriterAbstractionWithJson",
+            "notice" => "the writer should append data to the json payload here"
+        );
+        $log = new LogEntries(self::TOKEN,true,true);
+        $log->addWriter($writer);
         $log->info($json);
         $log->tearDown();
     }

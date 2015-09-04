@@ -7,8 +7,6 @@ use Psr\Log\LogLevel;
 
 class LogEntries extends AbstractLogger
 {
-    /** @var LogEntries */
-    private static $_instance = null;
 
     /** LogEntries server address for receiving logs */
     const LE_ADDRESS = 'tcp://api.logentries.com';
@@ -19,6 +17,15 @@ class LogEntries extends AbstractLogger
     /** LogEntries server port for receiving logs with TLS by token */
     const LE_TLS_PORT = 20000;
 
+    /** @var LogEntries */
+    private static $_instance = null;
+    /**
+     * Writer middleware call stack
+     *
+     * @var  \SplStack
+     * @link http://php.net/manual/class.splstack.php
+     */
+    private $_writer_stack = array();
     /** @var resource */
     private $_socketResource = null;
     /** @var string the token for LogEntries */
@@ -71,6 +78,13 @@ class LogEntries extends AbstractLogger
     }
 
     /**
+     * Add custom log message writer (middleware for log entries)
+     * @param LogEntriesWriter $writer
+     */
+    public function addWriter(LogEntriesWriter $writer) {
+        $this->_writer_stack->push($writer);
+    }
+    /**
      * LogEntries constructor which sets up the connection defaults
      * @param $token string token for access to their API
      * @param bool|true $persistent use a persistent connection
@@ -82,6 +96,8 @@ class LogEntries extends AbstractLogger
      */
     public function __construct($token, $persistent = true, $ssl = false, $dataHubEnabled = false, $dataHubIPAddress = "", $dataHubPort = 0, $hostname = "")
     {
+
+        $this->_writer_stack = new \SplStack();
 
         if (true === $dataHubEnabled) {
             // Check if a DataHub IP Address has been entered
@@ -333,7 +349,8 @@ class LogEntries extends AbstractLogger
             throw new \InvalidArgumentException('the message argument needs to be a string or an array');
         }
         else {
-            if ($this->isJSON($message)) {
+            $isJson = $this->isJSON($message);
+            if ($isJson) {
                 $json = json_decode($message, true);
                 if ("" != $this->_hostname) {
                     $json["hostname"] = $this->_hostname;
@@ -351,6 +368,13 @@ class LogEntries extends AbstractLogger
                         $message .= " - " . json_encode($context);
                     }
                 }
+            }
+            $this->_writer_stack->rewind();
+            while( $this->_writer_stack->valid() ) {
+                /** @var LogEntriesWriter $writer */
+                $writer = $this->_writer_stack->current();
+                $message = $writer->log($message,$isJson);
+                $this->_writer_stack->next();
             }
             $this->writeToSocket($this->substituteNewline($message) . PHP_EOL);
         }

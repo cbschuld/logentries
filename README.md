@@ -86,6 +86,48 @@ $log2->notice($jsonInfo);
 
 ```
 
+## Middleware (Writer)
+
+Using a LogEntriesWriter you can append log writing middleware into the log.  The middleware is called before the log
+is written to LogEntries.  It allows for sensing for JSON or text.  This allows you to append data from your
+architecture into your logs.
+
+Here is a sample usage:
+
+```
+<?php
+
+use cbschuld\LogEntries;
+use cbschuld\LogEntriesWriter;
+
+class WriterTest extends LogEntriesWriter {
+    // always add the hostname
+    public function log($message,$isJson=false) {
+        if($isJson) {
+            $json = json_decode($message,true);
+            $json["hostname"] = gethostname();
+            $message = json_encode($json);
+        }
+        else {
+            $hostname = gethostname();
+            $message .= " hostname={$hostname}";
+        }
+        return $message;
+    }
+}
+
+$writer = new WriterTest();
+
+$json = array(
+    "datetime" => new \DateTime("now"),
+    "status" => "ok",
+);
+$log = new LogEntries("MYTOKEN",true,true);
+$log->addWriter($writer);
+$log->info($json);
+
+```
+
 
 ## PSR-3 Compliant
 
