@@ -1,5 +1,5 @@
 # LogEntries
-[![Build Status](https://travis-ci.org/cbschuld/LogEntries.svg?branch=master)](https://travis-ci.org/cbschuld/LogEntries)
+[![Build Status](https://travis-ci.org/cbschuld/logentries.svg?branch=master)](https://travis-ci.org/cbschuld/logentries)
 
 A LogEntries specific logging class by [Chris Schuld](http://chrisschuld.com/) for logging information to [LogEntries](https://logentries.com)
 
