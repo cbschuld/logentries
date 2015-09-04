@@ -84,7 +84,7 @@ $log2 = new LogEntries($token2,true,true); // create persistent SSL-based connec
 $log2->info(["status"=>"ok","example"=>"with json messages","from"=>"log2"]);
 $log2->notice($jsonInfo);
 
-```
+``` php
 
 ## Middleware (Writer)
 
