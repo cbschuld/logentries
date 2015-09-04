@@ -1,6 +1,6 @@
 {
   "name": "cbschuld/logentries",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A PHP PSR-3 compliant logging class for LogEntries service (https://logentries.com/)",
   "keywords": [
     "logging"
