@@ -18,32 +18,32 @@ class LogEntries extends AbstractLogger
     const LE_TLS_PORT = 20000;
 
     /** @var LogEntries */
-    private static $_instance = null;
+    private static $_instance;
     /**
      * Writer middleware call stack
      *
      * @var  \SplStack
      * @link http://php.net/manual/class.splstack.php
      */
-    private $_writer_stack = array();
+    private $_writer_stack;
     /** @var resource */
-    private $_socketResource = null;
+    private $_socketResource;
     /** @var string the token for LogEntries */
-    private $_token = null;
+    private $_token;
     /** @var string the ip address for DataHub*/
-    private $_dataHubIPAddress = "";
+    private $_dataHubIPAddress = '';
     /** @var boolean use DataHub */
     private $_useDataHub = false;
     /** @var int the port number for DataHub */
     private $_dataHubPort = 10000;
     /** @var string hostname to log, if provided it is added to the string or added to the json */
-    private $_hostname = "";
+    private $_hostname;
     /** @var int seconds before timeout, defaults to the ini setting value of 'default_socket_timeout' */
     private $_connectionTimeout;
     /** @var boolean use a persistent connection */
-    private $_persistent = true;
+    private $_persistent;
     /** @var boolean use ssl for connection */
-    private $_ssl = false;
+    private $_ssl;
     /** @var string - error number */
     private $_error_number;
     /** @var string - error description */
@@ -60,8 +60,9 @@ class LogEntries extends AbstractLogger
      * @param int $dataHubPort the port number for the LogEntries DataHub if in use
      * @param string $hostname the hostname to add to the string or json log entry (optional)
      * @return LogEntries
+     * @throws \InvalidArgumentException
      */
-    public static function getLogger($token, $persistent = true, $ssl = false, $dataHubEnabled = false, $dataHubIPAddress = "", $dataHubPort = 10000, $hostname = "")
+    public static function getLogger($token, $persistent = true, $ssl = false, $dataHubEnabled = false, $dataHubIPAddress = '', $dataHubPort = 10000, $hostname = '')
     {
         if (!self::$_instance) {
             self::$_instance = new LogEntries($token, $persistent, $ssl, $dataHubEnabled, $dataHubIPAddress, $dataHubPort, $hostname);
@@ -84,6 +85,7 @@ class LogEntries extends AbstractLogger
     public function addWriter(LogEntriesWriter $writer) {
         $this->_writer_stack->push($writer);
     }
+
     /**
      * LogEntries constructor which sets up the connection defaults
      * @param $token string token for access to their API
@@ -93,8 +95,9 @@ class LogEntries extends AbstractLogger
      * @param string $dataHubIPAddress the IP address for the LogEntries DataHub if in use
      * @param int $dataHubPort the port number for the LogEntries DataHub if in use
      * @param string $hostname the hostname to add to the string or json log entry (optional)
+     * @throws \InvalidArgumentException
      */
-    public function __construct($token, $persistent = true, $ssl = false, $dataHubEnabled = false, $dataHubIPAddress = "", $dataHubPort = 0, $hostname = "")
+    public function __construct($token, $persistent = true, $ssl = false, $dataHubEnabled = false, $dataHubIPAddress = '', $dataHubPort = 0, $hostname = '')
     {
 
         $this->_writer_stack = new \SplStack();
@@ -132,6 +135,7 @@ class LogEntries extends AbstractLogger
     /**
      * validates the token provided by the caller is not empty
      * @param $token
+     * @throws \InvalidArgumentException
      */
     public function validateToken($token)
     {
@@ -144,6 +148,7 @@ class LogEntries extends AbstractLogger
     /**
      * validates the ip address provided by the caller is not empty
      * @param $dataHubIPAddress
+     * @throws \InvalidArgumentException
      */
     public function validateDataHubIP($dataHubIPAddress)
     {
@@ -189,11 +194,11 @@ class LogEntries extends AbstractLogger
     {
         if ($this->isTLS()) {
             return self::LE_TLS_PORT;
-        } elseif ($this->isDataHub()) {
-            return $this->_dataHubPort;
-        } else {
-            return self::LE_PORT;
         }
+        if ($this->isDataHub()) {
+            return $this->_dataHubPort;
+        }
+        return self::LE_PORT;
     }
 
     /**
@@ -213,11 +218,11 @@ class LogEntries extends AbstractLogger
     {
         if ($this->isTLS() && !$this->isDataHub()) {
             return self::LE_TLS_ADDRESS;
-        } elseif ($this->isDataHub()) {
-            return $this->_dataHubIPAddress;
-        } else {
-            return self::LE_ADDRESS;
         }
+        if ($this->isDataHub()) {
+            return $this->_dataHubIPAddress;
+        }
+        return self::LE_ADDRESS;
     }
 
     /**
@@ -278,7 +283,7 @@ class LogEntries extends AbstractLogger
     public function writeToSocket($line)
     {
         if ($this->isConnected() || $this->connectIfNotConnected()) {
-            fputs($this->_socketResource, $this->_token . $line);
+            fwrite($this->_socketResource, $this->_token . $line);
         }
     }
 
@@ -290,9 +295,7 @@ class LogEntries extends AbstractLogger
     private function substituteNewline($line)
     {
         $unicodeChar = chr(13);
-        $newLine = str_replace(PHP_EOL, $unicodeChar, $line);
-
-        return $newLine;
+        return str_replace(PHP_EOL, $unicodeChar, $line);
     }
 
     /**
@@ -323,7 +326,7 @@ class LogEntries extends AbstractLogger
      */
     private function isJSON($string)
     {
-        return is_string($string) && is_object(json_decode($string)) && (json_last_error() == JSON_ERROR_NONE) ? true : false;
+        return (is_string($string) && is_object(json_decode($string)) && (json_last_error() === JSON_ERROR_NONE));
     }
 
 
@@ -348,36 +351,35 @@ class LogEntries extends AbstractLogger
         if (!is_string($message)) {
             throw new \InvalidArgumentException('the message argument needs to be a string or an array');
         }
-        else {
-            $isJson = $this->isJSON($message);
-            if ($isJson) {
-                $json = json_decode($message, true);
-                if ("" != $this->_hostname) {
-                    $json["hostname"] = $this->_hostname;
-                }
-                $json["level"] = $level;
+        $isJson = $this->isJSON($message);
+        if ($isJson) {
+            $json = json_decode($message, true);
+            if ('' !== $this->_hostname) {
+                $json['hostname'] = $this->_hostname;
+            }
+            $json['level'] = $level;
+            if (count($context) > 0) {
+                $json['context'] = $context;
+            }
+            $message = json_encode($json);
+        } else {
+            $message = strtoupper($level) . ' - ' . $message;
+            if ('' !== $this->_hostname) {
+                $message = "hostname={$this->_hostname} - " . $message;
                 if (count($context) > 0) {
-                    $json["context"] = $context;
-                }
-                $message = json_encode($json);
-            } else {
-                $message = strtoupper($level) . " - " . $message;
-                if ("" != $this->_hostname) {
-                    $message = "hostname={$this->_hostname} - " . $message;
-                    if (count($context) > 0) {
-                        $message .= " - " . json_encode($context);
-                    }
+                    $message .= ' - ' . json_encode($context);
                 }
             }
-            $this->_writer_stack->rewind();
-            while( $this->_writer_stack->valid() ) {
-                /** @var LogEntriesWriter $writer */
-                $writer = $this->_writer_stack->current();
-                $message = $writer->log($message,$isJson);
-                $this->_writer_stack->next();
-            }
-            $this->writeToSocket($this->substituteNewline($message) . PHP_EOL);
         }
+        $this->_writer_stack->rewind();
+        while( $this->_writer_stack->valid() ) {
+            /** @var LogEntriesWriter $writer */
+            $writer = $this->_writer_stack->current();
+            $message = $writer->log($message,$isJson);
+            $this->_writer_stack->next();
+        }
+        $this->writeToSocket($this->substituteNewline($message) . PHP_EOL);
+        return null;
     }
 
     /**
@@ -386,6 +388,7 @@ class LogEntries extends AbstractLogger
      * @param string|array $message
      * @param array $context
      * @return null
+     * @throws \InvalidArgumentException
      */
     public function emergency($message, array $context = array())
     {
@@ -401,6 +404,7 @@ class LogEntries extends AbstractLogger
      * @param string|array $message
      * @param array $context
      * @return null
+     * @throws \InvalidArgumentException
      */
     public function alert($message, array $context = array())
     {
@@ -415,6 +419,7 @@ class LogEntries extends AbstractLogger
      * @param string|array $message
      * @param array $context
      * @return null
+     * @throws \InvalidArgumentException
      */
     public function critical($message, array $context = array())
     {
@@ -428,6 +433,7 @@ class LogEntries extends AbstractLogger
      * @param string|array $message
      * @param array $context
      * @return null
+     * @throws \InvalidArgumentException
      */
     public function error($message, array $context = array())
     {
@@ -443,6 +449,7 @@ class LogEntries extends AbstractLogger
      * @param string|array $message
      * @param array $context
      * @return null
+     * @throws \InvalidArgumentException
      */
     public function warning($message, array $context = array())
     {
@@ -455,6 +462,7 @@ class LogEntries extends AbstractLogger
      * @param string|array $message
      * @param array $context
      * @return null
+     * @throws \InvalidArgumentException
      */
     public
     function notice($message, array $context = array())
@@ -470,6 +478,7 @@ class LogEntries extends AbstractLogger
      * @param string|array $message
      * @param array $context
      * @return null
+     * @throws \InvalidArgumentException
      */
     public function info($message, array $context = array())
     {
@@ -482,6 +491,7 @@ class LogEntries extends AbstractLogger
      * @param string|array $message
      * @param array $context
      * @return null
+     * @throws \InvalidArgumentException
      */
     public function debug($message, array $context = array())
     {
