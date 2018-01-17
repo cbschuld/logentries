@@ -505,7 +505,7 @@ class LogEntries extends AbstractLogger
     }
 
 	/**
-	 * @param \SplStack $le_address
+	 * @param string $le_address
 	 */
 	public function setLeAddress($le_address) {
 		$this->le_address = $le_address;
