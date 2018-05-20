@@ -11,11 +11,11 @@ class LogEntries extends AbstractLogger
     /** LogEntries server address for receiving logs */
     const LE_ADDRESS = 'tcp://';
     /** LogEntries server address for receiving logs via TLS */
-    const LE_TLS_ADDRESS = 'tls://';
+    const LE_TLS_ADDRESS = 'ssl://';
     /** LogEntries server port for receiving logs by token */
     const LE_PORT = 10000;
     /** LogEntries server port for receiving logs with TLS by token */
-    const LE_TLS_PORT = 20000;
+    const LE_TLS_PORT = 443;
 
     /** @var LogEntries */
     private static $_instance;
