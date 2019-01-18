@@ -348,7 +348,9 @@ class LogEntries extends AbstractLogger
      */
     public function log($level, $message, array $context = array())
     {
-        $this->connectIfNotConnected();
+        if ($this->connectIfNotConnected()===false) {
+		return null;
+	}
 
         if (is_array($message)) {
             $message = json_encode($message);
