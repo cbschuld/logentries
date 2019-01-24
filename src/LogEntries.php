@@ -512,5 +512,12 @@ class LogEntries extends AbstractLogger
 	public function setLeAddress($le_address) {
 		$this->le_address = $le_address;
 	}
+	
+	/**
+	 * @param string $token
+	 */
+	public function setToken($token) {
+		$this->_token = $token;
+	}
 
 }
