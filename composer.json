@@ -1,5 +1,5 @@
 {
-  "name": "cbschuld/logentries",
+  "name": "michabbb/logentries",
   "version": "1.0.4",
   "description": "A PHP PSR-3 compliant logging class for LogEntries service (https://logentries.com/)",
   "keywords": [
