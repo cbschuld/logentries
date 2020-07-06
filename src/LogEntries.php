@@ -9,13 +9,13 @@ class LogEntries extends AbstractLogger
 {
 
     /** LogEntries server address for receiving logs */
-    const LE_ADDRESS = 'tcp://api.logentries.com';
+    const LE_ADDRESS = 'tcp://';
     /** LogEntries server address for receiving logs via TLS */
-    const LE_TLS_ADDRESS = 'tls://api.logentries.com';
+    const LE_TLS_ADDRESS = 'ssl://';
     /** LogEntries server port for receiving logs by token */
     const LE_PORT = 10000;
     /** LogEntries server port for receiving logs with TLS by token */
-    const LE_TLS_PORT = 20000;
+    const LE_TLS_PORT = 443;
 
     /** @var LogEntries */
     private static $_instance;
@@ -25,6 +25,12 @@ class LogEntries extends AbstractLogger
      * @var  \SplStack
      * @link http://php.net/manual/class.splstack.php
      */
+
+	/**
+	 * @var string
+	 */
+    private $le_address;
+
     private $_writer_stack;
     /** @var resource */
     private $_socketResource;
@@ -217,12 +223,12 @@ class LogEntries extends AbstractLogger
     public function getAddress()
     {
         if ($this->isTLS() && !$this->isDataHub()) {
-            return self::LE_TLS_ADDRESS;
+            return self::LE_TLS_ADDRESS.$this->le_address;
         }
         if ($this->isDataHub()) {
             return $this->_dataHubIPAddress;
         }
-        return self::LE_ADDRESS;
+        return self::LE_ADDRESS.$this->le_address;
     }
 
     /**
@@ -342,7 +348,9 @@ class LogEntries extends AbstractLogger
      */
     public function log($level, $message, array $context = array())
     {
-        $this->connectIfNotConnected();
+        if ($this->connectIfNotConnected()===false) {
+		return null;
+	}
 
         if (is_array($message)) {
             $message = json_encode($message);
@@ -497,5 +505,19 @@ class LogEntries extends AbstractLogger
     {
         return $this->log(LogLevel::DEBUG, $message, $context);
     }
+
+	/**
+	 * @param string $le_address
+	 */
+	public function setLeAddress($le_address) {
+		$this->le_address = $le_address;
+	}
+	
+	/**
+	 * @param string $token
+	 */
+	public function setToken($token) {
+		$this->_token = $token;
+	}
 
 }
